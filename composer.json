@@ -1,0 +1,16 @@
+{
+    "name": "jaaprood/php-resque-retry",
+    "description": "A php-resque plugin; provides retry, delay and exponential backoff support to php-resque jobs",
+    "require": {
+        "chrisboulton/php-resque": "dev-master",
+        "chrisboulton/php-resque-scheduler": "dev-master",
+        "jaaprood/php-resque-plugin": "dev-master"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jaap Rood",
+            "email": "jaap@jaaprood.nl"
+        }
+    ]
+}
