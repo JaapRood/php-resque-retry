@@ -63,8 +63,26 @@ class Retry {
 		Resque::redis()->del($retryKey);
 	}
 
-	public function redisRetryKey($job, $instance) {}
-	public function retryCriteriaValid() {}
+	/**
+	 * Return the redis key used to track retries
+	 * 
+	 * @param 	Resque_Job 	$job
+	 * @param 	string
+	 */
+	protected function redisRetryKey($job) {
+		return 'resque-retry:' . (string) $job;
+	}
+
+	/**
+	 * Test whether the retry criteria are valid
+	 *
+	 * @param  	Exception 	$exception
+	 * @param 	Resque_Job 	$job
+	 * @return  boolean
+	 */
+	protected function retryCriteriaValid($exception, $job) {
+		return true; // retry everything for now
+	}
 
 	
 }
