@@ -50,7 +50,26 @@ class Retry {
 		$this->cleanRetryKey($job);
 	}
 
-	protected function tryAgain() {}
+
+	/**
+	 * Retry the job
+	 *
+	 * @param 	Exception 	$exception 	the exception that caused the job to fail
+	 * @param  	Resque_Job	$job 		the job that failed and should be retried
+	 */
+	protected function tryAgain($exception, $job) {
+		$retryDelay = $this->retryDelay();
+		
+		$queue = $job->queue;
+		$class = $job->getClass();
+		$arguments = $job->getArguments();
+
+		if ($retryDelay <= 0) {
+			Resque::enqueue($queue, $class, $arguments);
+		} else {
+			ResqueScheduler::enqueue_in($retryDelay, $queue, $class, $arguments);
+		}
+	}
 
 	/**
 	 * Clean up the retry attempts information from Redis
