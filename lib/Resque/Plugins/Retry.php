@@ -67,7 +67,7 @@ class Retry {
 		if ($retryDelay <= 0) {
 			Resque::enqueue($queue, $class, $arguments);
 		} else {
-			ResqueScheduler::enqueue_in($retryDelay, $queue, $class, $arguments);
+			ResqueScheduler::enqueueIn($retryDelay, $queue, $class, $arguments);
 		}
 	}
 
