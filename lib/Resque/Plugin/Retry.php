@@ -13,13 +13,12 @@ class Retry {
 	 * 
 	 * @param  	Exception 	$exception
 	 * @param 	Resque_Job 	$job
-	 * @param   Object   	$instance
 	 */
-	public function onFailure($exception, $job, $instance) {
-		if ($this->retryCriteriaValid($exception, $job, $instance)) {
-			$this->tryAgain($exception, $job, $instance);
+	public function onFailure($exception, $job) {
+		if ($this->retryCriteriaValid($exception, $job)) {
+			$this->tryAgain($exception, $job);
 		} else {
-			$this->cleanRetryKey($job, $instance);
+			$this->cleanRetryKey($job);
 		}
 
 	}
@@ -30,11 +29,10 @@ class Retry {
 	 * Sets up the tracking of the of the amount of attempts trying to perform this job
 	 * 
 	 * @param 	Resque_Job 	$job
-	 * @param   Object   	$instance
 	 */
-	public function beforePeform($job, $instance) {
+	public function beforePeform($job) {
 		// Keep track of the number of retry attempts
-		$retryKey = $this->redisRetryKey($job, $instance);
+		$retryKey = $this->redisRetryKey($job);
 
 		Resque::redis()->setnx($retryKey, -1); // set to -1 if key doesn't exist
 		$instance->retryAttempt = Resque::redis()->incr($retryKey);
@@ -47,22 +45,20 @@ class Retry {
 	 * performed.
 	 * 
 	 * @param 	Resque_Job 	$job
-	 * @param   Object   	$instance
 	 */
-	public function afterPerform($job, $instance) {
-		$this->cleanRetryKey($job, $instance);
+	public function afterPerform($job) {
+		$this->cleanRetryKey($job);
 	}
 
-	public function tryAgain() {}
+	protected function tryAgain() {}
 
 	/**
 	 * Clean up the retry attempts information from Redis
 	 * 
 	 * @param 	Resque_Job 	$job
-	 * @param   Object   	$instance
 	 */
-	public function cleanRetryKey($job, $instance) {
-		$retryKey = $this->redisRetryKey($job, $instance);
+	protected function cleanRetryKey($job) {
+		$retryKey = $this->redisRetryKey($job);
 
 		Resque::redis()->del($retryKey);
 	}
