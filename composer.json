@@ -12,5 +12,10 @@
             "name": "Jaap Rood",
             "email": "jaap@jaaprood.nl"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-0": {
+            "Resque": "lib/"
+        }
+    }
 }
