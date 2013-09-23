@@ -58,7 +58,7 @@ class Retry {
 	 * @param  	Resque_Job	$job 		the job that failed and should be retried
 	 */
 	protected function tryAgain($exception, $job) {
-		$retryDelay = $this->retryDelay();
+		$retryDelay = $this->retryDelay($job);
 		
 		$queue = $job->queue;
 		$class = $job->getClass();
@@ -103,5 +103,33 @@ class Retry {
 		return true; // retry everything for now
 	}
 
+	/**
+	 * Get the retry delay from the job, defaults to 0
+	 *
+	 * @param 	Resque_Job 	$job
+	 * @return  int 		retry delay in seconds
+	 */
+	protected function retryDelay($job) {
+		return $this->getInstanceProperty($job, 'retryDelay', 0);
+	}
+
+	/**
+	 * Get a property of the job instance if it exists, otherwise
+	 * the default value for this property. Return null for a property
+	 * that has no default set
+	 */
+	protected function getInstanceProperty($job, $property, $default = null) {
+		$instance = $job->getInstance();
+
+		if (method_exists($instance, $property)) {
+			return call_user_func_array(array($instance, $property), $job);
+		}
+
+		if (property_exists($instance, $property)) {
+			return $instance->{$property};
+		}
+
+		return $default;
+	}
 	
 }
