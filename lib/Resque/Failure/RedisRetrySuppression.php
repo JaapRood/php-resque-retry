@@ -1,7 +1,8 @@
 <?php
 
 namespace Resque\Failure;
-use Resque_Failure_Redis;
+use \Resque_Failure_Redis;
+use \Resque;
 
 class RedisRetrySuppression extends Resque_Failure_Redis {
 	/**
@@ -13,17 +14,18 @@ class RedisRetrySuppression extends Resque_Failure_Redis {
 	 * @param string $queue The name of the queue the job was fetched from.
 	 */
 	public function __construct($job, $exception, $worker, $queue) {
-		if (!$job->retrying) {
+		if (!$job->retrying or $job->retryDelay <= 0) {
 			$this->clearRetryKey($job);
 			return parent::__construct($job, $exception, $worker, $queue);
 		}
 		
 		$retryKey = $this->redisRetryKey($job);
+		$retryDelay = $job->retryDelay;
 
 		$data = $this->getData($job, $exception, $worker, $queue);
-		$data->retryDelay = $job->retryDelay;
+		$data->retryDelay = $retryDelay;
 
-		Resque::redis()->setex($retryKey, json_encode($data));
+		Resque::redis()->setex($retryKey, $retryDelay * 2, json_encode($data));
 		
 	}
 
@@ -42,7 +44,7 @@ class RedisRetrySuppression extends Resque_Failure_Redis {
 	 * 
 	 * @param 	Resque_Job 	$job
 	 */
-	protected function cleanRetryKey($job) {
+	protected function clearRetryKey($job) {
 		$retryKey = $this->redisRetryKey($job);
 
 		Resque::redis()->del($retryKey);
