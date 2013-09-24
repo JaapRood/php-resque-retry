@@ -17,7 +17,7 @@ class Retry {
 	public function onFailure($exception, $job) {
 		if ($this->retryCriteriaValid($exception, $job)) {
 			$this->tryAgain($exception, $job);
-			$job->retryKey = $this->retryKey($job);
+			$job->retryKey = $this->redisRetryKey($job);
 		} else {
 			$this->cleanRetryKey($job);
 		}
