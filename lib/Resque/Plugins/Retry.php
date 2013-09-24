@@ -39,7 +39,7 @@ class Retry {
 		$job->retryAttempt = Resque::redis()->incr($retryKey);
 
 		// Set the right failure backend
-		$job->failure_backend = '\\Resque\\Failure\\RedisRetrySuppression';
+		$job->failureBackend = '\\Resque\\Failure\\RedisRetrySuppression';
 	}
 
 	/**
