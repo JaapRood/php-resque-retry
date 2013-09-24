@@ -17,6 +17,7 @@ class Retry {
 	public function onFailure($exception, $job) {
 		if ($this->retryCriteriaValid($exception, $job)) {
 			$this->tryAgain($exception, $job);
+			$job->retryKey = $this->retryKey($job);
 		} else {
 			$this->cleanRetryKey($job);
 		}
@@ -35,7 +36,10 @@ class Retry {
 		$retryKey = $this->redisRetryKey($job);
 
 		Resque::redis()->setnx($retryKey, -1); // set to -1 if key doesn't exist
-		$instance->retryAttempt = Resque::redis()->incr($retryKey);
+		$job->retryAttempt = Resque::redis()->incr($retryKey);
+
+		// Set the right failure backend
+		$job->failure_backend = '\\Resque\\Failure\\RedisRetrySuppression';
 	}
 
 	/**
@@ -69,6 +73,9 @@ class Retry {
 		} else {
 			ResqueScheduler::enqueueIn($retryDelay, $queue, $class, $arguments);
 		}
+
+		$job->retrying = true;
+		$job->retryDelay = $retryDelay;
 	}
 
 	/**
