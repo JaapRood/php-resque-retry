@@ -30,7 +30,7 @@ class Retry {
 	 * 
 	 * @param 	Resque_Job 	$job
 	 */
-	public function beforePeform($job) {
+	public function beforePerform($job) {
 		// Keep track of the number of retry attempts
 		$retryKey = $this->redisRetryKey($job);
 
