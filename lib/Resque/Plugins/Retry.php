@@ -89,7 +89,15 @@ class Retry {
 	 * @param 	string
 	 */
 	protected function redisRetryKey($job) {
-		return 'resque-retry:' . (string) $job;
+		$name = array(
+			'Job{' . $job->queue .'}'
+		);
+		$name[] = $job->payload['class'];
+		if(!empty($job->payload['args'])) {
+			$name[] = md5(json_encode($job->payload['args']));
+		}
+
+		return 'retry:' . '(' . implode(' | ', $name) . ')';
 	}
 
 	/**
