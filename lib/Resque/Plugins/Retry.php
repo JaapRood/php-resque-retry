@@ -126,7 +126,7 @@ class Retry {
 
 		if ($retryLimit === 0) {
 			return true;
-		} elseif ($retry_limit > 0) {
+		} elseif ($retryLimit > 0) {
 			return ($job->retryAttempt >= $retryLimit);
 		} else {
 			return false;
