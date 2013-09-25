@@ -14,7 +14,7 @@ class RedisRetrySuppression extends Resque_Failure_Redis {
 	 * @param string $queue The name of the queue the job was fetched from.
 	 */
 	public function __construct($job, $exception, $worker, $queue) {
-		if (!$job->retrying or $job->retryDelay <= 0) {
+		if (!property_exists($job, 'retrying') or !$job->retrying or $job->retryDelay <= 0) {
 			$this->clearRetryKey($job);
 			return parent::__construct($job, $exception, $worker, $queue);
 		}
