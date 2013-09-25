@@ -115,7 +115,32 @@ class Retry {
 	 * @return  boolean
 	 */
 	protected function retryCriteriaValid($exception, $job) {
+		if ($this->retryLimitReached($job)) return false;
+
+
 		return true; // retry everything for now
+	}
+
+	protected function retryLimitReached($job) {
+		$retryLimit = $this->retryLimit($job);
+
+		if ($retryLimit === 0) {
+			return true;
+		} elseif ($retry_limit > 0) {
+			return ($job->retryAttempt >= $retryLimit);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Get the retry delay from the job, defaults to 0
+	 *
+	 * @param 	Resque_Job 	$job
+	 * @return  int 		retry delay in seconds
+	 */
+	protected function retryLimit($job) {
+		return $this->getInstanceProperty($job, 'retryLimit', 1);
 	}
 
 	/**
