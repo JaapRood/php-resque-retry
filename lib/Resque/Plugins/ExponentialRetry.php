@@ -12,7 +12,7 @@ class ExponentialRetry extends Retry {
 	 * @return  int 		retry limit
 	 */
 	protected function retryLimit($job) {
-		$this->getInstanceProperty($job, 'retryLimit', count($this->backoffStrategy()));
+		return $this->getInstanceProperty($job, 'retryLimit', count($this->backoffStrategy($job)));
 	}
 
 	/**
@@ -49,6 +49,6 @@ class ExponentialRetry extends Retry {
 	 */
 	protected function backoffStrategy($job) {
 		$defaultStrategy = array(0, 60, 600, 3600, 10800, 21600, 43200);
-		$this->getInstanceProperty($job, 'backoffStrategy', $defaultStrategy);
+		return $this->getInstanceProperty($job, 'backoffStrategy', $defaultStrategy);
 	}
 }
