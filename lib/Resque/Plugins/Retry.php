@@ -38,7 +38,8 @@ class Retry {
 		Resque::redis()->setnx($retryKey, -1); // set to -1 if key doesn't exist
 		$job->retryAttempt = Resque::redis()->incr($retryKey);
 
-		// Set the right failure backend
+		// Set basic info on the job
+		$job->retryKey = $this->redisRetryKey($job);
 		$job->failureBackend = '\\Resque\\Failure\\RedisRetrySuppression';
 	}
 
