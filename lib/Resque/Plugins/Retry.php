@@ -69,14 +69,17 @@ class Retry {
 		$class = $job->getClass();
 		$arguments = $job->getArguments();
 
+		$retryingAt = time() + $retryDelay;
+
 		if ($retryDelay <= 0) {
 			Resque::enqueue($queue, $class, $arguments);
 		} else {
-			ResqueScheduler::enqueueIn($retryDelay, $queue, $class, $arguments);
+			ResqueScheduler::enqueueAt($retryingAt, $queue, $class, $arguments);
 		}
 
 		$job->retrying = true;
 		$job->retryDelay = $retryDelay;
+		$job->retryingAt = $retryingAt;
 	}
 
 	/**
