@@ -125,6 +125,12 @@ class Retry {
 		return true; // retry everything for now
 	}
 
+	/**
+	 * Check whether the retry limit has been reached
+	 *
+	 * @param  	Resque_Job	$job
+	 * @return  boolean
+	 */
 	protected function retryLimitReached($job) {
 		$retryLimit = $this->retryLimit($job);
 
