@@ -121,8 +121,46 @@ class Retry {
 	protected function retryCriteriaValid($exception, $job) {
 		if ($this->retryLimitReached($job)) return false;
 
+		$shouldRetry = $this->retryException($exception, $job);
 
-		return true; // retry everything for now
+		return $shouldRetry; // retry everything for now
+	}
+
+	/**
+	 * Check whether this exception should be retried. Will retry all exceptions
+	 * when no specific exceptions are defined.
+	 *
+	 * @param 	Exception 	$e 		exception thrown in job
+	 * @param 	Resque_Job 	$job
+	 * @return 	boolean
+	 */
+	protected function retryException($exception, $job) {
+		$exceptions = $this->retryExceptions($job);
+
+		if (is_null($exceptions) or empty($exceptions)) return true;
+
+		foreach ($exceptions as $e) {
+			if (stripos($e, '\\') !== 0) {
+				$e = '\\'. $e;
+			}
+
+			if (is_a($exception, $e)) return true;
+		}
+
+		// if we reached this point, the exception is not one we want to retry
+		return false;
+	}
+
+	/**
+	 * Get the exceptions defined on the job instance for which this job shoud be 
+	 * retried when it fails.
+	 *
+	 * @param 	Resque_Job 	$job
+	 * @return 	array,null 	classnames of exceptions or null
+	 */
+
+	protected function retryExceptions($job) {
+		return $this->getInstanceProperty($job, 'retryExceptions', null);
 	}
 
 	/**
